@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import "./style.css"
 import Input from '../Input/Input'
+import Button from '../Button/Button'
 
 const SigninAndSignup = () => {
   const [name, setName] = useState('')
@@ -37,6 +38,14 @@ const SigninAndSignup = () => {
         state={comfirmPassword}
         setState={setComfirmPassword}
         placeholder={"Example@123"}
+        />
+        <Button
+        text={"Signup with Email and Password"}
+        />
+        <p style={{textAlign :  "center"}}>or</p>
+        <Button
+        text={"Signup with Google"}
+        blue={true}
         />
       </form>
     </div>
