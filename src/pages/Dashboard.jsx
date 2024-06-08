@@ -1,8 +1,11 @@
 import React from 'react'
+import Cards from '../components/Card/Cards'
 
 const Dashboard = () => {
   return (
-    <div>Dashboard</div>
+    <div>
+      <Cards/>
+    </div>
   )
 }
 

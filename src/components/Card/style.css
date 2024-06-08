@@ -1,0 +1,26 @@
+.my-card {
+  box-shadow: var(--shadow);
+  margin: 2rem;
+  border-radius: 0.5rem;
+  min-width: 400px;
+  flex: 1;
+}
+
+.my-card p {
+  margin: 0;
+}
+
+.my-card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 !important;
+}
+
+.my-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 2rem auto;
+}
