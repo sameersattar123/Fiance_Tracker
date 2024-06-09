@@ -1,9 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Cards from "../components/Card/Cards";
 import AddExpense from "../components/Models/AddExpense";
 import AddIncome from "../components/Models/AddIncome";
+import moment from "moment";
+import { addDoc, collection, getDocs, query } from "firebase/firestore";
+import { toast } from "react-toastify";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, db } from "../firebase";
+import Loader from "../components/Loader/Loader";
 
 const Dashboard = () => {
+  const [user] = useAuthState(auth);
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [isExpenseModalVisible, setIsExpenseModalVisible] = useState(false);
   const [isIncomeModalVisible, setIsIncomeModalVisible] = useState(false);
 
@@ -23,26 +32,74 @@ const Dashboard = () => {
     setIsIncomeModalVisible(false);
   };
 
-  const onFinish = (values, type) => {
-    console.log(values, type);
+  const addTransaction = async (transaction) => {
+    try {
+      const docRef = await addDoc(
+        collection(db, `users/${user.uid}/transactions`),
+        transaction
+      );
+      console.log("Document written with ID: ", docRef.id);
+      toast.success("Transaction Added!");
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      toast.error("Couldn't add transaction");
+    }
   };
+
+  const onFinish = (values, type) => {
+    const newTransction = {
+      type: type,
+      date: moment(values.date).format("YYYY-MM-DD"),
+      amount: parseFloat(values.amount),
+      tag: values.tag,
+      name: values.name,
+    };
+
+    addTransaction(newTransction);
+  };
+
+  const fetchTransactions = async () => {
+    setLoading(true);
+    if (user) {
+      const q = query(collection(db, `users/${user.uid}/transactions`));
+      const querySnapshot = await getDocs(q);
+      let transactionsArray = [];
+      querySnapshot.forEach((doc) => {
+        transactionsArray.push(doc.data());
+      });
+      setTransactions(transactionsArray);
+      console.log(transactionsArray)
+      toast.success("Transactions Fetched!");
+    }
+    setLoading(false);
+  };
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
   return (
-    <div>
-      <Cards
-        showExpenseModal={showExpenseModal}
-        showIncomeModal={showIncomeModal}
-      />
-      <AddExpense
-        isExpenseModalVisible={isExpenseModalVisible}
-        handleExpenseCancel={handleExpenseCancel}
-        onFinish={onFinish}
-      />
-      <AddIncome
-        isIncomeModalVisible={isIncomeModalVisible}
-        handleIncomeCancel={handleIncomeCancel}
-        onFinish={onFinish}
-      />
-    </div>
+    <>
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          <Cards
+            showExpenseModal={showExpenseModal}
+            showIncomeModal={showIncomeModal}
+          />
+          <AddExpense
+            isExpenseModalVisible={isExpenseModalVisible}
+            handleExpenseCancel={handleExpenseCancel}
+            onFinish={onFinish}
+          />
+          <AddIncome
+            isIncomeModalVisible={isIncomeModalVisible}
+            handleIncomeCancel={handleIncomeCancel}
+            onFinish={onFinish}
+          />
+        </>
+      )}
+    </>
   );
 };
 
