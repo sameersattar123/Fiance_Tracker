@@ -15,6 +15,9 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [isExpenseModalVisible, setIsExpenseModalVisible] = useState(false);
   const [isIncomeModalVisible, setIsIncomeModalVisible] = useState(false);
+  const [income, setIncome] = useState(0);
+  const [expense, setExpense] = useState(0);
+  const [totalBalance, setTotalBalance] = useState(0);
 
   const showExpenseModal = () => {
     setIsExpenseModalVisible(true);
@@ -40,6 +43,10 @@ const Dashboard = () => {
       );
       console.log("Document written with ID: ", docRef.id);
       toast.success("Transaction Added!");
+      let newArr = transactions;
+      newArr.push(transaction)
+      setTransactions(newArr);
+      calculateBalance();
     } catch (e) {
       console.error("Error adding document: ", e);
       toast.error("Couldn't add transaction");
@@ -68,13 +75,33 @@ const Dashboard = () => {
         transactionsArray.push(doc.data());
       });
       setTransactions(transactionsArray);
-      console.log(transactionsArray)
+      console.log(transactionsArray);
       toast.success("Transactions Fetched!");
     }
     setLoading(false);
   };
+
+  const calculateBalance = () => {
+    let incomeTotal = 0;
+    let expenseTotal = 0;
+
+    transactions.forEach((transaction) => {
+      if (transaction.type === "expense") {
+        expenseTotal += transaction.amount;
+      } else {
+        incomeTotal += transaction.amount;
+      }
+    });
+
+    setIncome(incomeTotal);
+    setExpense(expenseTotal);
+    setTotalBalance(incomeTotal - expenseTotal);
+  };
   useEffect(() => {
     fetchTransactions();
+  }, []);
+  useEffect(() => {
+    calculateBalance();
   }, []);
 
   return (
@@ -84,6 +111,9 @@ const Dashboard = () => {
       ) : (
         <>
           <Cards
+            income={income}
+            expense={expense}
+            totalBalance={totalBalance}
             showExpenseModal={showExpenseModal}
             showIncomeModal={showIncomeModal}
           />
