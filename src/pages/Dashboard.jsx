@@ -9,6 +9,8 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../firebase";
 import Loader from "../components/Loader/Loader";
 import TransactionTable from "../components/TransactionTable/TransactionTable";
+import Charts from "../components/Charts/Charts";
+import NoTransactions from "../components/NoTransactions/NoTransactions";
 
 const Dashboard = () => {
   const [user] = useAuthState(auth);
@@ -118,6 +120,9 @@ const Dashboard = () => {
             showExpenseModal={showExpenseModal}
             showIncomeModal={showIncomeModal}
           />
+          {
+            transactions.length != 0 ? <Charts transactions={transactions} /> : <NoTransactions/>
+          }
           <AddExpense
             isExpenseModalVisible={isExpenseModalVisible}
             handleExpenseCancel={handleExpenseCancel}
